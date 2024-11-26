@@ -9,10 +9,31 @@ import Foundation
 import SwiftData
 
 @Model
-final class Item {
-    var timestamp: Date
+final class Task {
     
-    init(timestamp: Date) {
-        self.timestamp = timestamp
+    var id: UUID
+    var name: String
+    var isDone: Bool
+    
+    
+    init(name: String, isDone: Bool = false) {
+        self.id = UUID()
+        self.name = name
+        self.isDone = isDone
+    }
+}
+
+@Model
+final class ShopThing {
+    
+    var name: String
+    var amount: Int
+    var bought: Bool
+    
+    
+    init(name: String, amount: Int, bought: Bool = false) {
+        self.name = name
+        self.amount = amount
+        self.bought = bought
     }
 }

@@ -10,46 +10,72 @@ import SwiftData
 
 struct ContentView: View {
     @Environment(\.modelContext) private var modelContext
-    @Query private var items: [Item]
+    @Query private var allTasks: [Task]
+    
+    @State var taskName = ""
 
     var body: some View {
         NavigationSplitView {
-            List {
-                ForEach(items) { item in
-                    NavigationLink {
-                        Text("Item at \(item.timestamp, format: Date.FormatStyle(date: .numeric, time: .standard))")
-                    } label: {
-                        Text(item.timestamp, format: Date.FormatStyle(date: .numeric, time: .standard))
-                    }
+            VStack {
+                TextField("Task Name", text: $taskName)
+                    .padding()
+                    .textFieldStyle(RoundedBorderTextFieldStyle())
+
+                Button(action: addTask) {
+                    Text("Add Task")
+                        .padding()
+                        .background(Color.blue)
+                        .foregroundColor(.white)
+                        .cornerRadius(8)
                 }
-                .onDelete(perform: deleteItems)
+                
+                List {
+                    ForEach(allTasks) { task in
+                        HStack {
+                            Text(task.name)
+                                .strikethrough(task.isDone, color: .gray)
+                            
+                            Spacer()
+                            
+                            Text(task.isDone ? "Done" : "Pending")
+                                .foregroundColor(task.isDone ? .green : .red)
+                        }
+                        .onTapGesture {
+                            toggleTaskStatus(task)
+                        }
+                    }
+                    .onDelete(perform: deleteTasks)
+                }
             }
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     EditButton()
                 }
-                ToolbarItem {
-                    Button(action: addItem) {
-                        Label("Add Item", systemImage: "plus")
-                    }
-                }
             }
         } detail: {
-            Text("Select an item")
+            Text("Select a task")
         }
     }
 
-    private func addItem() {
+    private func addTask() {
         withAnimation {
-            let newItem = Item(timestamp: Date())
-            modelContext.insert(newItem)
+            guard !taskName.isEmpty else { return }
+            let newTask = Task(name: taskName, isDone: false)
+            modelContext.insert(newTask)
+            taskName = ""
         }
     }
 
-    private func deleteItems(offsets: IndexSet) {
+    private func toggleTaskStatus(_ task: Task) {
+        withAnimation {
+            task.isDone.toggle()
+        }
+    }
+
+    private func deleteTasks(offsets: IndexSet) {
         withAnimation {
             for index in offsets {
-                modelContext.delete(items[index])
+                modelContext.delete(allTasks[index])
             }
         }
     }
@@ -57,5 +83,5 @@ struct ContentView: View {
 
 #Preview {
     ContentView()
-        .modelContainer(for: Item.self, inMemory: true)
+        .modelContainer(for: Task.self, inMemory: true)
 }

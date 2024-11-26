@@ -9,11 +9,9 @@ import SwiftUI
 import SwiftData
 
 @main
-struct TodoListApp: App {
+struct ToDoListApp: App {
     var sharedModelContainer: ModelContainer = {
-        let schema = Schema([
-            Item.self,
-        ])
+        let schema = Schema([Task.self])
         let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
 
         do {
